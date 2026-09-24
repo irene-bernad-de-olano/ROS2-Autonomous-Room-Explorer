@@ -1,0 +1,54 @@
+launch:
+
+
+- node:
+
+    pkg: "turtlesim"
+
+    exec: "turtlesim_node"
+    name: "sim"
+
+
+- node:
+
+    pkg: "turtlesim"
+
+    exec: "draw_square"
+    name: "draw"
+
+
+
+- node:
+
+    pkg: "turtlesim"
+
+    exec: "turtlesim_node"
+    name: "new_sim"
+    namespace: "new_sim"
+
+
+
+    param:
+
+    -
+
+      name: "background_r"
+      value: 0
+
+    - 
+
+      name: "background_g"
+      value: 177
+
+    -
+
+      name: "background_b"
+      value: 172
+
+- node:
+
+    pkg: "turtlesim"
+
+    exec: "draw_square"
+    name: "draw"
+    namespace: "new_sim"   

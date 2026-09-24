@@ -1,0 +1,66 @@
+/**:
+  ros__parameters:
+    # Topic published by your camera driver (e.g. usb_cam, realsense2_camera).
+    # The camera_info topic is derived automatically by image_transport, by replacing the
+    # last path component with 'camera_info' (e.g. /image_raw -> /camera_info).
+    cam_base_topic: /camera/camera/color/image_raw
+
+    # Parent TF frame poses are published relative to. Leave empty to use the camera's
+    # own frame_id (from the image message header).
+    output_frame: ''
+
+    # OpenCV ArUco dictionary name (no 'DICT_' prefix), e.g. 4X4_50, 5X5_100, 6X6_250,
+    # APRILTAG_36h11 - must match how your markers were generated.
+    marker_dict: 4X4_50
+
+    # Set to true if cam_base_topic publishes an already-rectified/undistorted image.
+    image_is_rectified: false
+    image_sub_compressed: false
+    image_sub_qos:
+      reliability: 2 # 0 - system default, 1 - reliable, 2 - best effort
+      durability: 2 # 0 - system default, 1 - transient local, 2 - volatile
+      depth: 1
+
+    publish_tf: true
+
+    # Printed marker side length in meters (including the black border, excluding any
+    # white margin) - this sets the scale of the published pose. Measure your printed
+    # marker and update this value.
+    marker_size: 0.144
+
+    pose_selector:
+      # The PnP solver can return multiple candidate poses per marker. Strategy to
+      # pick one:
+      # - REPROJECTION_ERROR: lowest reprojection error
+      # - PLANE_NORMAL_PARALLEL: marker plane normal most parallel to the camera's Z axis
+      strategy: REPROJECTION_ERROR
+      debug: false
+
+    # Dynamically reconfigurable OpenCV ArUco detector parameters - tune these to trade
+    # off detection range/robustness against false positives and CPU usage. See
+    # https://docs.opencv.org/4.x/d5/dae/tutorial_aruco_detection.html
+    aruco:
+      adaptiveThreshWinSizeMin: 3
+      adaptiveThreshWinSizeMax: 23
+      adaptiveThreshWinSizeStep: 10
+      adaptiveThreshConstant: 7.0
+      minMarkerPerimeterRate: 0.03
+      maxMarkerPerimeterRate: 4.0
+      polygonalApproxAccuracyRate: 0.03
+      minCornerDistanceRate: 0.05
+      minDistanceToBorder: 3
+      minMarkerDistanceRate: 0.05
+      markerBorderBits: 1
+      perspectiveRemovePixelPerCell: 4
+      perspectiveRemoveIgnoredMarginPerCell: 0.13
+      maxErroneousBitsInBorderRate: 0.35
+      minOtsuStdDev: 5.0
+      errorCorrectionRate: 0.6
+      cornerRefinementMethod: 2 # 0 - None, 1 - Subpix, 2 - Contour
+      cornerRefinementWinSize: 5
+      cornerRefinementMaxIterations: 30
+      cornerRefinementMinAccuracy: 0.1
+      detectInvertedMarker: false
+      useAruco3Detection: false
+      minSideLengthCanonicalImg: 32
+      minMarkerLengthRatioOriginalImg: 0.0

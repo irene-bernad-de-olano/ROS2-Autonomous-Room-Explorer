@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+
+import cv2
+import torch
+from ultralytics import YOLO
+import math
+from os import putenv
+
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image, CameraInfo
+from geometry_msgs.msg import PoseStamped
+from image_geometry import PinholeCameraModel
+from sensor_msgs.msg import CompressedImage
+import numpy as np
+
+from cv_bridge import CvBridge
+
+# For AMD ROCm
+# putenv("HSA_OVERRIDE_GFX_VERSION", "10.3.0")
+# For NVIDIA CUDA
+# torch.cuda.set_device(0)
+
+class DetectionNode(Node):
+    def __init__(self):
+        super().__init__('detection_node')
+        self.bridge = CvBridge()
+        self.detections = self.create_publisher(Image, '/yolo_detections', 10)
+        # self.detections_compressed = self.create_publisher(Image, '/yolo_detections/compressed', 10)
+        self.subscription_compressed = self.create_subscription(CompressedImage, '/image_raw/compressed', self.image_callback, 10)
+        self.subscription_compressed
+        # self.subscription = self.create_subscription(Image, '/image_raw', self.image_callback, 10)
+        # self.subscription  # prevent unused variable warning
+        self.model = YOLO('/home/rss/sf_ws/src/yolo_to_ros/yolo_to_ros/yolov8n.pt')  # standard YOLOv8 nano model
+        #self.model = YOLO('/home/rss/sf_ws/src/yolo_to_ros/yolo_to_ros/best.pt')  # Hand gesture recognition self-trained model
+        # self.frame_count = 0
+        # self.process_every_n_frames = 3
+
+    def image_callback(self, msg):
+        # self.frame_count += 1
+
+        # # Skip frames
+        # if self.frame_count % self.process_every_n_frames != 0:
+        #     return
+
+        np_arr = np.frombuffer(msg.data, np.uint8)
+
+        frame = cv2.imdecode(
+            np_arr,
+            cv2.IMREAD_COLOR
+        )
+
+        # Now frame can be passed to YOLO
+        results = self.model(
+            frame,
+            imgsz=320,
+            verbose=True
+        )
+        # frame = self.bridge.imgmsg_to_cv2(frame, "bgr8")
+        # results = self.model(frame, stream=True)
+        for r in results:
+            boxes = r.boxes
+            for box in boxes:
+                # Pixel coordinates
+                x1, y1, x2, y2 = box.xyxy[0]
+                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+
+                # Put boxes in frame
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (100, 0, 255), 1)
+
+                # Confidence
+                confidence = math.ceil((box.conf[0] * 100)) / 100
+
+                # Optional confidence output in console
+                # print("Confidence --->", confidence)
+
+                # Class name
+                cls = int(box.cls[0])
+
+                # Optional class name output in console
+                # print("Class name -->", r.names[cls])
+
+                org = [x1, y1]
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                fontScale = 1
+                color = (100, 0, 255)
+                thickness = 1
+                cv2.putText(frame, f"{r.names[cls]} {confidence}", org, font, fontScale, color, thickness)
+        self.detections.publish(self.bridge.cv2_to_imgmsg(frame, 'bgr8'))
+
+def main():
+    rclpy.init()
+    depth_to_pose_node = DetectionNode()
+    try:
+        rclpy.spin(depth_to_pose_node)
+    except KeyboardInterrupt:
+        pass
+    depth_to_pose_node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

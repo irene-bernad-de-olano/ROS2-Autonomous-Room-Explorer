@@ -1,0 +1,14 @@
+launch:
+
+- node:
+    pkg: "yolo_to_ros"
+    exec: "yolo_to_ros_comp"
+    name: "yolo_detection_node"
+    param:
+    - name: "confidence"
+      value: 0.5
+
+- node:
+    pkg: "yolo_to_ros"
+    exec: "hand_sign"
+    name: "hand_sign_controller"
