@@ -24,6 +24,31 @@ once, not just in isolation:
 This project wires those building blocks (mapping, localization, navigation, perception, speech
 and gesture interfaces) into one ROS2 workspace running on a real Create3.
 
+## Demo
+
+**Navigation with Nav2 on the saved map.** A goal is set in RViz with *Nav2 Goal* on the map
+built with SLAM Toolbox, and the physical robot plans a path and drives to that point while AMCL
+keeps it localized.
+
+<p align="center">
+  <img src="media/nav2-map.gif" alt="Nav2 goal set in RViz and the robot driving to it" width="480">
+</p>
+
+**Robot TF tree and tag localization.** Every part of the robot (base, lidar, camera) is defined
+as a TF frame, and the system detects fiducial tags with the camera and publishes each one's pose
+in space as its own TF frame.
+
+<p align="center">
+  <img src="media/robot-tf-tag.gif" alt="Robot TF frames and a detected tag shown as a TF in RViz" width="640">
+</p>
+
+**Real-time object detection with YOLOv8.** The pre-built `yolov8n.pt` model running live on a
+webcam feed — the same detection node that runs on the robot's camera.
+
+<p align="center">
+  <img src="media/yolo-webcam.gif" alt="YOLOv8 detecting objects in real time on a webcam feed" width="480">
+</p>
+
 ## Why this project?
 
 The bootcamp builds up these skills session by session — communication, TF, mapping/lidar,
@@ -210,33 +235,6 @@ Voice control covers movement instructions only. Room-level instructions on the 
    while turning (0.4 rad/s), and *stop* — or no gesture — stops the robot.
 4. Stops the robot as a safety measure if camera images stop arriving (older than 0.5 s), and
    sends a final stop when the node is shut down.
-
-## Demo
-
-**Navigation with Nav2 on the saved map.** A goal is set in RViz with *Nav2 Goal* on the map
-built with SLAM Toolbox, and the physical robot plans a path and drives to that point while AMCL
-keeps it localized.
-
-<p align="center">
-  <img src="media/nav2-map.gif" alt="Nav2 goal set in RViz and the robot driving to it" width="480">
-</p>
-
-**Robot TF tree and tag localization.** Every part of the robot (base, lidar, camera) is defined
-as a TF frame, and the system detects fiducial tags with the camera and publishes each one's pose
-in space as its own TF frame.
-
-<p align="center">
-  <img src="media/robot-tf-tag.gif" alt="Robot TF frames and a detected tag shown as a TF in RViz" width="640">
-</p>
-
-**Real-time object detection with YOLOv8.** The pre-built `yolov8n.pt` model running live on a
-webcam feed — the same detection node that runs on the robot's camera.
-
-<p align="center">
-  <img src="media/yolo-webcam.gif" alt="YOLOv8 detecting objects in real time on a webcam feed" width="480">
-</p>
-
-Full-quality original videos are in [`media/`](media/).
 
 ## Results & what we learned
 
